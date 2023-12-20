@@ -1,5 +1,6 @@
 const fetchData = async (
   api: string,
+  prompt: string,
   stream: boolean,
   dataRef: React.MutableRefObject<string>,
   callback: React.Dispatch<React.SetStateAction<number>>
@@ -11,7 +12,7 @@ const fetchData = async (
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ stream }),
+      body: JSON.stringify({ stream, prompt }),
     });
 
     if (stream) {
