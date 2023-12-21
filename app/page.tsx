@@ -1,6 +1,11 @@
 "use client";
 
-import { fetchData, fetchAudio, fetchDataAudio } from "@/utils/fetchData";
+import {
+  fetchData,
+  fetchAudio,
+  fetchDataAudio,
+  fetchRealTime,
+} from "@/utils/fetchData";
 import React, {
   ChangeEvent,
   FormEvent,
@@ -15,10 +20,12 @@ import ClipLoader from "react-spinners/ClipLoader";
 export default function Home() {
   const [_render, setRender] = useState(0);
   const dataRef = useRef("");
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [prompt, setPrompt] = useState("");
   const [isSubmit, setIsSubmit] = useState(false);
   const [stream, setStream] = useState(false);
   const [withAudio, setWithAudio] = useState(false);
+  const [withAudioRealTime, setWithAudioRealTime] = useState(false);
 
   const callFetchData = useCallback(async () => {
     const api = "http://localhost:3001/stream";
@@ -29,6 +36,21 @@ export default function Home() {
   const callFetchDataAudio = useCallback(async () => {
     const api = "http://localhost:3001/stream-audio";
     await fetchDataAudio(api, prompt, stream, dataRef, setRender);
+    setIsSubmit(false);
+  }, [prompt, stream]);
+
+  const callFetchRealTime = useCallback(async () => {
+    const api = "http://localhost:3001/real-time";
+    if (audioRef.current) {
+      await fetchRealTime(
+        api,
+        prompt,
+        stream,
+        dataRef,
+        audioRef.current,
+        setRender
+      );
+    }
     setIsSubmit(false);
   }, [prompt, stream]);
 
@@ -52,6 +74,12 @@ export default function Home() {
     setWithAudio(event.target.checked);
   };
 
+  const handleWithAudioRealTimeChange = (
+    event: ChangeEvent<HTMLInputElement>
+  ) => {
+    setWithAudioRealTime(event.target.checked);
+  };
+
   const handleSubmit = (event: FormEvent) => {
     setIsSubmit(true);
     dataRef.current = "";
@@ -60,6 +88,9 @@ export default function Home() {
     if (withAudio) {
       console.log("with audio");
       callFetchDataAudio();
+    } else if (withAudioRealTime) {
+      console.log("with audio realtime");
+      callFetchRealTime();
     } else {
       console.log("without audio");
       callFetchData();
@@ -130,6 +161,19 @@ export default function Home() {
             >
               With Audio
             </label>
+            <input
+              className="leading-tight h-6 w-6 mr-2 ml-4"
+              type="checkbox"
+              id="inline-with-audio-real-time"
+              checked={withAudioRealTime}
+              onChange={handleWithAudioRealTimeChange}
+            />
+            <label
+              className="block text-gray-500 font-bold mr-2"
+              htmlFor="inline-with-audio-real-time"
+            >
+              With Audio Real Time
+            </label>
           </div>
           <div>
             <button
@@ -151,6 +195,14 @@ export default function Home() {
       {!dataRef.current && isSubmit && (
         <div className="flex justify-center items-center">
           <ClipLoader color={"#9139fd"} loading={true} size={50} />
+        </div>
+      )}
+      {audioRef && (
+        <div
+          id="container-audio"
+          className="text-left w-full shadow-lg mt-12 p-8 text-gray-600 transition-all ease-in-out duration-900"
+        >
+          <audio ref={audioRef} controls />
         </div>
       )}
       {dataRef.current && (

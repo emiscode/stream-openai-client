@@ -110,3 +110,46 @@ export const fetchDataAudio = async (
     }
   });
 };
+
+export const fetchRealTime = async (
+  api: string,
+  prompt: string,
+  stream: boolean,
+  dataRef: React.MutableRefObject<string>,
+  audioRef: HTMLAudioElement,
+  callback: React.Dispatch<React.SetStateAction<number>>
+) => {
+  console.log("fetching real time...");
+
+  // Perform a POST request to
+  const response = await fetch(api, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Range: "bytes=0-99999999999999999",
+    },
+    body: JSON.stringify({ stream, prompt }),
+  });
+
+  console.log("response", response);
+
+  // Create a MediaSource object
+  const mediaSource = new MediaSource();
+
+  // Attach the MediaSource object to the audio element
+  audioRef.src = URL.createObjectURL(mediaSource);
+
+  mediaSource.addEventListener("sourceopen", async () => {
+    // Create a SourceBuffer for the audio data
+    const sourceBuffer = mediaSource.addSourceBuffer("audio/mpeg");
+
+    // Get the audio chunk from the response
+    const arrayBuffer = await response.arrayBuffer();
+    const audioChunk = new Uint8Array(arrayBuffer);
+
+    // Append the audio chunk to the SourceBuffer
+    sourceBuffer.appendBuffer(audioChunk);
+    // Play the audio
+    audioRef.play();
+  });
+};
