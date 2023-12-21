@@ -35,22 +35,27 @@ export default function Home() {
 
   const callFetchDataAudio = useCallback(async () => {
     const api = "http://localhost:3001/stream-audio";
-    await fetchDataAudio(api, prompt, stream, dataRef, setRender);
+    await fetchDataAudio(
+      api,
+      prompt,
+      stream,
+      dataRef,
+      audioRef.current as HTMLAudioElement,
+      setRender
+    );
     setIsSubmit(false);
   }, [prompt, stream]);
 
   const callFetchRealTime = useCallback(async () => {
     const api = "http://localhost:3001/real-time";
-    if (audioRef.current) {
-      await fetchRealTime(
-        api,
-        prompt,
-        stream,
-        dataRef,
-        audioRef.current,
-        setRender
-      );
-    }
+    await fetchRealTime(
+      api,
+      prompt,
+      stream,
+      dataRef,
+      audioRef.current as HTMLAudioElement,
+      setRender
+    );
     setIsSubmit(false);
   }, [prompt, stream]);
 
@@ -197,14 +202,7 @@ export default function Home() {
           <ClipLoader color={"#9139fd"} loading={true} size={50} />
         </div>
       )}
-      {audioRef && (
-        <div
-          id="container-audio"
-          className="text-left w-full shadow-lg mt-12 p-8 text-gray-600 transition-all ease-in-out duration-900"
-        >
-          <audio ref={audioRef} controls />
-        </div>
-      )}
+      {audioRef && <audio className="w-full mt-8" ref={audioRef} controls />}
       {dataRef.current && (
         <div
           id="container-response"

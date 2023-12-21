@@ -70,6 +70,7 @@ export const fetchDataAudio = async (
   prompt: string,
   stream: boolean,
   dataRef: React.MutableRefObject<string>,
+  audioRef: HTMLAudioElement,
   callback: React.Dispatch<React.SetStateAction<number>>
 ) => {
   console.log("fetching data audio...");
@@ -80,11 +81,10 @@ export const fetchDataAudio = async (
     headers: {
       "Content-Type": "application/json",
     },
+    body: JSON.stringify({ stream, prompt }),
   });
 
   const data = await response.json();
-
-  console.log("data", data);
 
   data.forEach((item: {}) => {
     if (Object(item).type === "text") {
@@ -106,7 +106,8 @@ export const fetchDataAudio = async (
 
       // Create an Audio object and play the audio
       const audio = new Audio(audioSrc);
-      audio.play();
+      audioRef.src = audioSrc;
+      audioRef.play();
     }
   });
 };
@@ -130,8 +131,6 @@ export const fetchRealTime = async (
     },
     body: JSON.stringify({ stream, prompt }),
   });
-
-  console.log("response", response);
 
   // Create a MediaSource object
   const mediaSource = new MediaSource();
