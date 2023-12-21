@@ -1,5 +1,3 @@
-import axios from "axios";
-
 export const fetchData = async (
   api: string,
   prompt: string,
@@ -47,7 +45,8 @@ export const fetchData = async (
 };
 
 export const fetchAudio = async (api: string) => {
-  // Perform a POST request to /audio
+  console.log("fetching audio...");
+  // Perform a POST request to
   const response = await fetch(api, {
     method: "POST",
     headers: {
@@ -55,30 +54,41 @@ export const fetchAudio = async (api: string) => {
     },
   });
 
-  // Get the base64 chunk from the response
-  const arrayBuffer = await response.arrayBuffer();
-  const base64Chunk = btoa(
-    new Uint8Array(arrayBuffer).reduce(
-      (data, byte) => data + String.fromCharCode(byte),
-      ""
-    )
-  );
+  // Get the base64 string from the response
+  const base64String = await response.text();
 
-  // Convert base64 to raw binary data
-  const byteCharacters = atob(base64Chunk);
-  const byteNumbers = new Array(byteCharacters.length);
-  for (let i = 0; i < byteCharacters.length; i++) {
-    byteNumbers[i] = byteCharacters.charCodeAt(i);
-  }
-  const byteArray = new Uint8Array(byteNumbers);
-
-  // Create a Blob from the byte array
-  const blob = new Blob([byteArray], { type: "audio/mpeg" });
-
-  // Create an Object URL from the Blob
-  const url = URL.createObjectURL(blob);
+  // Convert the base64 string to a data URL
+  const audioSrc = "data:audio/mpeg;base64," + base64String;
 
   // Create an Audio object and play the audio
-  const audio = new Audio(url);
+  const audio = new Audio(audioSrc);
+  audio.play();
+};
+
+export const fetchDataAudio = async (
+  api: string,
+  prompt: string,
+  stream: boolean,
+  dataRef: React.MutableRefObject<string>,
+  callback: React.Dispatch<React.SetStateAction<number>>
+) => {
+  console.log("fetching data audio...");
+
+  // Perform a POST request to
+  const response = await fetch(api, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  // Get the base64 string from the response
+  const base64String = await response.text();
+
+  // Convert the base64 string to a data URL
+  const audioSrc = "data:audio/mpeg;base64," + base64String;
+
+  // Create an Audio object and play the audio
+  const audio = new Audio(audioSrc);
   audio.play();
 };

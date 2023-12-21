@@ -1,6 +1,6 @@
 "use client";
 
-import { fetchData, fetchAudio } from "@/utils/fetchData";
+import { fetchData, fetchAudio, fetchDataAudio } from "@/utils/fetchData";
 import React, {
   ChangeEvent,
   FormEvent,
@@ -18,16 +18,24 @@ export default function Home() {
   const [prompt, setPrompt] = useState("");
   const [isSubmit, setIsSubmit] = useState(false);
   const [stream, setStream] = useState(false);
+  const [withAudio, setWithAudio] = useState(false);
 
   const callFetchData = useCallback(async () => {
     const api = "http://localhost:3001/stream";
-    await fetchData(api, prompt, stream, dataRef, setRender);
+    await fetchDataAudio(api, prompt, stream, dataRef, setRender);
+    setIsSubmit(false);
+  }, [prompt, stream]);
+
+  const callFetchDataAudio = useCallback(async () => {
+    const api = "http://localhost:3001/stream-audio";
+    await fetchDataAudio(api, prompt, stream, dataRef, setRender);
     setIsSubmit(false);
   }, [prompt, stream]);
 
   const callFetchAudio = useCallback(async () => {
     const api = "http://localhost:3001/audio";
     await fetchAudio(api);
+    setIsSubmit(false);
   }, []);
 
   const handlePromptChange = (
@@ -40,14 +48,26 @@ export default function Home() {
     setStream(event.target.checked);
   };
 
+  const handleWithAudioChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setWithAudio(event.target.checked);
+  };
+
   const handleSubmit = (event: FormEvent) => {
     setIsSubmit(true);
     dataRef.current = "";
     event.preventDefault();
-    callFetchData();
+
+    if (withAudio) {
+      console.log("with audio");
+      callFetchDataAudio();
+    } else {
+      console.log("without audio");
+      callFetchData();
+    }
   };
 
   const handleAudio = (event: FormEvent) => {
+    setIsSubmit(true);
     callFetchAudio();
   };
 
@@ -97,6 +117,19 @@ export default function Home() {
             >
               Stream
             </label>
+            <input
+              className="leading-tight h-6 w-6 mr-2"
+              type="checkbox"
+              id="inline-with-audio"
+              checked={withAudio}
+              onChange={handleWithAudioChange}
+            />
+            <label
+              className="block text-gray-500 font-bold mr-2"
+              htmlFor="inline-with-audio"
+            >
+              With audio
+            </label>
           </div>
           <div>
             <button
@@ -110,7 +143,7 @@ export default function Home() {
               type="submit"
               onClick={handleAudio}
             >
-              Audio
+              Audio Test
             </button>
           </div>
         </div>
