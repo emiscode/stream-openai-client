@@ -22,7 +22,7 @@ export default function Home() {
 
   const callFetchData = useCallback(async () => {
     const api = "http://localhost:3001/stream";
-    await fetchDataAudio(api, prompt, stream, dataRef, setRender);
+    await fetchData(api, prompt, stream, dataRef, setRender);
     setIsSubmit(false);
   }, [prompt, stream]);
 
@@ -115,10 +115,10 @@ export default function Home() {
               className="block text-gray-500 font-bold mr-2"
               htmlFor="inline-stream"
             >
-              Stream
+              Real Time Stream
             </label>
             <input
-              className="leading-tight h-6 w-6 mr-2"
+              className="leading-tight h-6 w-6 mr-2 ml-4"
               type="checkbox"
               id="inline-with-audio"
               checked={withAudio}
@@ -128,7 +128,7 @@ export default function Home() {
               className="block text-gray-500 font-bold mr-2"
               htmlFor="inline-with-audio"
             >
-              With audio
+              With Audio
             </label>
           </div>
           <div>

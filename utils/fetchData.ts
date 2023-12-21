@@ -82,13 +82,31 @@ export const fetchDataAudio = async (
     },
   });
 
-  // Get the base64 string from the response
-  const base64String = await response.text();
+  const data = await response.json();
 
-  // Convert the base64 string to a data URL
-  const audioSrc = "data:audio/mpeg;base64," + base64String;
+  console.log("data", data);
 
-  // Create an Audio object and play the audio
-  const audio = new Audio(audioSrc);
-  audio.play();
+  data.forEach((item: {}) => {
+    if (Object(item).type === "text") {
+      console.log("streaming text");
+
+      Object(item).content.forEach((item: string, index: number) => {
+        setTimeout(() => {
+          dataRef.current += item;
+          callback(Date.now()); // trigger a re-render
+        }, index * 320);
+      });
+    } else {
+      console.log("streaming audio...");
+      // Get the base64 string from the response
+      const base64String = Object(item).content;
+
+      // Convert the base64 string to a data URL
+      const audioSrc = "data:audio/mpeg;base64," + base64String;
+
+      // Create an Audio object and play the audio
+      const audio = new Audio(audioSrc);
+      audio.play();
+    }
+  });
 };
