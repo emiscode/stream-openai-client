@@ -1,6 +1,6 @@
 "use client";
 
-import fetchData from "@/utils/fetchData";
+import { fetchData, fetchAudio } from "@/utils/fetchData";
 import React, {
   ChangeEvent,
   FormEvent,
@@ -25,6 +25,11 @@ export default function Home() {
     setIsSubmit(false);
   }, [prompt, stream]);
 
+  const callFetchAudio = useCallback(async () => {
+    const api = "http://localhost:3001/audio";
+    await fetchAudio(api);
+  }, []);
+
   const handlePromptChange = (
     event: React.ChangeEvent<HTMLTextAreaElement>
   ) => {
@@ -40,6 +45,10 @@ export default function Home() {
     dataRef.current = "";
     event.preventDefault();
     callFetchData();
+  };
+
+  const handleAudio = (event: FormEvent) => {
+    callFetchAudio();
   };
 
   return (
@@ -95,6 +104,13 @@ export default function Home() {
               type="submit"
             >
               Submit
+            </button>
+            <button
+              className="shadow bg-purple-500 hover:bg-purple-400 focus:shadow-outline focus:outline-none text-white font-bold ml-4 py-2 px-4 rounded"
+              type="submit"
+              onClick={handleAudio}
+            >
+              Audio
             </button>
           </div>
         </div>
